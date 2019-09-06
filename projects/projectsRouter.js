@@ -23,6 +23,7 @@ router.route("/")
     })
 })
 
+// PROJECT BY ID ENDPOINT //
 router.route("/:id")
 // get specific project
 .get(validateProjectId, function idGetController(req, res){
@@ -61,6 +62,21 @@ router.route("/:id")
 
 })
 
+// ACTIONS OF PROJECT BY ID ENDPOINT //
+router.route("/:id/actions")
+.get(validateProjectId, function projectWithIdGetController(req, res){
+  projectsHelper.getProjectActions(req.params.id)
+    .then(actions => {
+      res.status(200).json(actions)
+    })
+    .catch(err => {
+      res.status(400).send({ message: "Something went wrong." })
+    })
+})
+
+
+
+// CUSTOM MIDDLEWARE //
 function validateProjectId(req, res, next) {
   let {id} = req.params;
   projectsHelper.get(id)  
