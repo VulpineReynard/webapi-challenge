@@ -14,7 +14,7 @@ Go code!
 */
 // code away!
 require('dotenv').config();
-const server = require('./server.js');
+const server = require('./server');
 const defaults = require('./config/defaults');
 
 server.listen(
