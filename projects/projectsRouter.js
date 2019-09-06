@@ -5,6 +5,7 @@ const actionsHelper = require('../data/helpers/actionModel');
 
 // BASE PROJECTS ENDPOINT //
 router.route("/")
+// get all projects
 .get(function rootGetController(req, res){
   projectsHelper.get()
     .then(projects => {
@@ -14,7 +15,8 @@ router.route("/")
       res.status(400).send({ message: "Something went wrong." })
     })
 })
-.post(function rootPostController(req, res){
+// create a project
+.post(validateProject, function rootPostController(req, res){
   projectsHelper.insert(req.body)
     .then(data => {
       res.status(201).send(data)
@@ -51,7 +53,7 @@ router.route("/:id")
 
 })
 // update specific project
-.put(validateProjectId, function idPutController(req, res) {
+.put(validateProjectId, validateProject, function idPutController(req, res) {
 
   projectsHelper.update(req.params.id, req.body)
     .then(count => {
@@ -65,6 +67,7 @@ router.route("/:id")
 
 // ACTIONS OF PROJECT BY ID ENDPOINT //
 router.route("/:id/actions")
+// get actions for a specific project
 .get(validateProjectId, function projectWithIdGetController(req, res){
   
   projectsHelper.getProjectActions(req.params.id)
@@ -97,6 +100,19 @@ router.route("/:id/actions")
 
 
 // CUSTOM MIDDLEWARE //
+function validateProject(req, res, next) {
+  const { name, description } = req.body;
+  if (isEmpty(req.body)) {
+    res.status(400).send({ message: "Missing project data." })
+  } else if (req.body && !name) {
+    res.status(400).send({ message: "Missing required name field." })
+  } else if (req.body && !description) {
+    res.status(400).send({ message: "Missing required description field." })
+  } else {
+    next();
+  }
+}
+
 function validateProjectId(req, res, next) {
   let id = req.params.id;
   projectsHelper.get(id)  
@@ -104,7 +120,7 @@ function validateProjectId(req, res, next) {
       req.user = project.id;
     })
     .catch(err => {
-      res.status(400).send("Invalid User Id")
+      res.status(400).send("Invalid User Id.")
     })
     next();
 }
@@ -112,11 +128,11 @@ function validateProjectId(req, res, next) {
 function validateAction(req, res, next) {
   const { description, notes } = req.body;
   if (isEmpty(req.body)) {
-    res.status(400).send({ message: "Missing action data" })
+    res.status(400).send({ message: "Missing action data." })
   } else if (req.body && !description) {
-    res.status(400).send({ message: "Missing required description field" })
+    res.status(400).send({ message: "Missing required description field." })
   } else if (req.body && !notes) {
-    res.status(400).send({ message: "Missing required notes field" })
+    res.status(400).send({ message: "Missing required notes field." })
   } else {
     next();
   }
